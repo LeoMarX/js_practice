@@ -9,4 +9,4 @@ setTimeout(() => {
 	console.log(es.get('student'));
 }, 3000);
 
-document.body.append('Run End.');
+document.body.append('Run end.');
