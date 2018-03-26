@@ -1,5 +1,9 @@
-class EasyStorage {
-	// 设置存储 id，默认过期时间 24 小时
+export default class EasyStorage {
+	/**
+	 * Creates an instance of EasyStorage.
+	 * @param {Object} [{ id = '', saveTime = 86400000 }={}] 
+	 * @memberof EasyStorage
+	 */
 	constructor({ id = '', saveTime = 86400000 } = {}) {
 		this.id = String(id);
 		this.saveTime = +saveTime;
