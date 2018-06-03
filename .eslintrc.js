@@ -1,11 +1,11 @@
 module.exports = {
     "env": {
         "browser": true,
-        "es6": true
     },
     "extends": "eslint:recommended",
     "parserOptions": {
-        "sourceType": "module"
+        "sourceType": "module",
+        "ecmaVersion": 7,
     },
     "rules": {
         "indent": [

@@ -25,29 +25,29 @@
  * @returns {Object}
  */
 function Observer(dataObj) {
-    let obj = Object.assign({}, dataObj);
+	let obj = Object.assign({}, dataObj);
     
-    function bindProp(prop) {
-        let val = obj[prop];
-        Object.defineProperty(obj, prop, {
-            configurable: true,
-            enumerable: true,
-            get() {
-                console.log(`你访问了 ${prop}`);
-                return val;
-            },
-            set(newVal) {
-                console.log(`你设置了 ${prop}, 新值为 ${newVal}`);
-                val = newVal;
-            } 
-        });
-    }
+	function bindProp(prop) {
+		let val = obj[prop];
+		Object.defineProperty(obj, prop, {
+			configurable: true,
+			enumerable: true,
+			get() {
+				console.log(`你访问了 ${prop}`);
+				return val;
+			},
+			set(newVal) {
+				console.log(`你设置了 ${prop}, 新值为 ${newVal}`);
+				val = newVal;
+			} 
+		});
+	}
 
-    Object.keys(obj).map(prop => {
-        bindProp(prop);
-    });
+	Object.keys(obj).map(prop => {
+		bindProp(prop);
+	});
 
-    return {data: obj};
+	return {data: obj};
 }
 
 /* --- test --- */
