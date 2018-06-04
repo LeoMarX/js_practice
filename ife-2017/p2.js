@@ -51,7 +51,7 @@ function _bind(target, prop, path) {
 			val = newVal;
 
 			if(isObject(newVal)) {
-				this.bindProp(target, prop);
+				this.bindProp(val, prop);
 			}
             
 			that.Watcher.emit(path, prop, newVal);

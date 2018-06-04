@@ -1,3 +1,7 @@
+/**
+ * @see http://ife.baidu.com/2017/course/detail/id/21
+ */
+
 class Watcher {
 	constructor({defaultFn} = {}) {
 		this._watch = {};
@@ -73,15 +77,27 @@ function _bind(target, prop, path) {
 			return val;
 		},
 		set(newVal) {
+			let oldVal = val;
 			val = newVal;
 
 			if(isObject(newVal)) {
-				that.bindProp(target, prop);
+				that.bindProp(val, path);
 			}
 			
-			that.Watcher.emit(path, prop, newVal); // @fixme 
+			emitAllPath(path, prop, oldVal, newVal);
 		}
 	});
+
+	function emitAllPath(path, ...data) {
+		let arr = path.split('.');
+		let lens = arr.length;
+
+		arr.forEach((p, i) => {
+			let _path = arr.slice(0, lens-i).join('.');
+
+			that.Watcher.emit(_path, ...data);
+		});
+	}
 }
 
 
@@ -103,10 +119,11 @@ function isArray(data) {
 var app1 = new Observer({a:1, b:2, c: {d: 4, e: {f: 5}, g: function() {console.log('g');}}});
 
 /* test $watch */
-var rm1 = app1.$watch('c.g', (data1, data2) => console.log('$watch', data1, data2));
+var rm1 = app1.$watch('c.e.f', (data1, data2) => console.log('$watch f', data1, data2));
+var rm2 = app1.$watch('c', (data1, data2) => console.log('$watch c', data1, data2));
 
 /* set prop c */
-app1.data.c = {d: 4, e: {f: 5}, g: function() {console.log('g2');}};
+// app1.data.c = {d: 4, e: {f: 5}, g: function() {console.log('g2');}};
 
 /* set prop g */
 // app1.data.c.g = 3;
