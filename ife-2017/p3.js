@@ -84,7 +84,7 @@ function _bind(target, prop, path) {
 				that.bindProp(val, path);
 			}
 			
-			emitAllPath(path, prop, oldVal, newVal);
+			emitAllPath(path, prop, newVal, oldVal);
 		}
 	});
 
