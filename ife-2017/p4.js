@@ -110,32 +110,27 @@ class Vue extends Observer {
 
 	_init(options) {
 		let {el, template} = options;
+		let targetDOM = document.querySelector(el);
 
-		if(el) {
-			template = document.querySelector(el) && document.querySelector(el).innerText;
+		if(!template) {
+			template = targetDOM && targetDOM.innerHTML;
 		}
 
-		this.$compile(template);
+		targetDOM.innerHTML = this.$compile(template);
 	}
 
 	$compile(template) {
 		console.log(template);
-		// let reg = /\{\{(\w+\.?)+\}\}/g;
-		// /{{((\.?[a-zA-Z_]\w*)|\[\w\])+}}/g;
-		// /{{([a-zA-Z_]\w*)((\.?[a-zA-Z_]\w*)|\[\w\])*}}/g;
-		// /{{([a-zA-Z_]\w*|\[\w\])((\.?[a-zA-Z_]\w*)|\[\w\])*}}/g;
-		// 测试用例：2wreqwr{{abd.a}}fsafdsa{{abd..a}}fsadfas{{.asd}}nknmop{{a.dbn}}sddfas{{2.d}} {{a[2]}}fdsafd{{ss.[a]}}
 
-		let context = this;
-		let regex = /{{([a-zA-Z_]\w*|\[\w\])((\.?[a-zA-Z_]\w*)|\[\w\])*}}/g;
-		// let pathArray = template.match(regex).map(str => str.replace(/^{{|}}$/g, ''));
-		// console.log(pathArray);
+		let regex = /{{([a-zA-Z_]\w*|\[\w+\])((\.?[a-zA-Z_]\w*)|\[\w+\])*}}/g;
+		// 测试用例：2wreqwr{{abd.a}}fsafdsa{{abd..a}}fsadfas{{.asd}}nknmop{{a.dbn}}sddfas{{2.d}} {{a[2]}}fdsafd{{ss.[a]}}
 		
 		let html = template.replace(regex, varString => {
 			let path =  varString.replace(/^{{|}}$/g, '');
 			let data = getInObj(this.data, path);
 			return data !== void(0) ? data : '';
 		});
+
 		console.log(html);
 		return html;
 	}
@@ -156,7 +151,7 @@ function isArray(data) {
 }
 
 function getInObj(obj, path) {
-	let pathArr = path.split('.');
+	let pathArr = path.replace(/\[\w+\]/g, p => '.' + p.slice(1, -1)).split('.'); // 中括号 [] 转换为 . 连接，分割为数组
 	let data = obj;
 
 	for(let i=0, lens=pathArr.length; i < lens; i++) {
@@ -172,10 +167,30 @@ function getInObj(obj, path) {
 /* test */
 let app1 = new Vue({
 	el: '#app',
+	template: `
+		<div class="base-info"> 
+			<p>姓名：{{user.name}}</p>
+			<p>年龄：{{user.age}}</p>
+		</div>
+		<div class="score">
+			<p>年级：{{school[grade]}}</p>
+			<p>分数：
+				<span>数学：{{school.score.math}}分；</span>
+				<span>英语：{{school.score.english}}分</span>
+			</p>
+		</div>			
+	`,
 	data: {
 		user: {
 			name: 'li lei',
 			age: 18
+		},
+		school: {
+			grade: 12,
+			score: {
+				math: 60,
+				english: 79
+			}
 		}
 	}
 });
