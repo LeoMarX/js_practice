@@ -27,7 +27,7 @@ class Watcher {
 		if(!fns) return;
 
 		if(fn) {
-			this._watch[key] = fns.filter(_fn => _fn != fn);
+			this._watch[key] = fns.filter(_fn => _fn !== fn);
 		} else {
 			delete this._watch[key];
 		}
@@ -51,10 +51,10 @@ class Watcher {
 /* Observer */
 class Observer {
 	constructor(dataObj) {
-		this.data = Object.assign({}, dataObj);
+		this.data = Object.assign({}, dataObj.data);
 
 		this.bindProp(this.data);
-		this.Watcher = new Watcher({defaultFn: (prop, newVal) => {
+		this.Watcher = new Watcher({defaultFn: dataObj.dataWatcher || function(prop, newVal) {
 			console.log(`你设置了 ${prop}, 新值为 ${newVal}`);
 		}});
 	}
@@ -92,6 +92,8 @@ function _bind(target, prop, path) {
 			let oldVal = val;
 			val = newVal;
 
+			if(oldVal === newVal || (isNaN(oldVal) && isNaN(newVal))) return;
+
 			if(isObject(newVal)) {
 				that.bindProp(val, path);
 			}
@@ -113,26 +115,34 @@ function _bind(target, prop, path) {
 }
 
 /* Vue */
-class Vue extends Observer {
+class Vue {
 	constructor(options) {
-		super(options.data);
+		// super(options);
+		// Object.assign(this.data = {}, new Observer(options.data));
 		this._init(options);
 	}
-
+	
 	_init(options) {
+		this.options = Object.assign({}, options);
+
+		this.data = new Observer({data: this.options.data, dataWatcher: () => {this.$update();}}).data;
+		this.$mount(options);
+	}
+
+	$mount(options) {
 		let {el, template} = options;
 		let targetDOM = document.querySelector(el);
 
 		if(!template) {
 			template = targetDOM && targetDOM.innerHTML;
 		}
+		
+		this.options.template = template;
 
 		targetDOM.innerHTML = this.$compile(template);
 	}
 
 	$compile(template) {
-		console.log(template);
-
 		let regex = /{{([a-zA-Z_]\w*|\[\w+\])((\.?[a-zA-Z_]\w*)|\[\w+\])*}}/g;
 		// 测试用例：2wreqwr{{abd.a}}fsafdsa{{abd..a}}fsadfas{{.asd}}nknmop{{a.dbn}}sddfas{{2.d}} {{a[2]}}fdsafd{{ss.[a]}}
 		
@@ -142,8 +152,11 @@ class Vue extends Observer {
 			return data !== void(0) ? data : '';
 		});
 
-		console.log(html);
 		return html;
+	}
+
+	$update() {
+		document.querySelector(this.options.el).innerHTML = this.$compile(this.options.template);
 	}
 
 }
@@ -206,3 +219,7 @@ let app1 = new Vue({
 		}
 	}
 });
+
+setTimeout(() => {
+	app1.data.school.score.math = 80; // 更新 DOM
+}, 2000);
