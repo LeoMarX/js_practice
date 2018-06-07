@@ -17,9 +17,20 @@ class Watcher {
 		}
 	
 		return () => {
-			let fns = this._watch[key] || [];
-			this._watch[key] = fns.filter(_fn => _fn != fn);
+			this.off(key, fn);
 		};
+	}
+
+	off(key, fn) {
+		let fns = this._watch[key];
+
+		if(!fns) return;
+
+		if(fn) {
+			this._watch[key] = fns.filter(_fn => _fn != fn);
+		} else {
+			delete this._watch[key];
+		}
 	}
 
 	emit(key, ...data) {
@@ -31,7 +42,7 @@ class Watcher {
 		}
 	
 		fns.forEach(fn => {
-			fn(...data);
+			fn.call(this, ...data);
 		});
 		return true;
 	}
@@ -134,6 +145,7 @@ class Vue extends Observer {
 		console.log(html);
 		return html;
 	}
+
 }
 
 
