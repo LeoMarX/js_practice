@@ -93,7 +93,7 @@ function _bind(target, prop, path) {
 			let oldVal = val;
 			val = newVal;
 
-			if(oldVal === newVal || (isNaN(oldVal) && isNaN(newVal))) return;
+			if(oldVal === newVal) return;
 
 			if(isObject(newVal)) {
 				that.bindProp(val, path);
