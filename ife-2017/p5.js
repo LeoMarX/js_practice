@@ -54,8 +54,8 @@ class Observer {
 		this.data = Object.assign({}, dataObj.data);
 
 		this.bindProp(this.data);
-		this.Watcher = new Watcher({defaultFn: dataObj.dataWatcher || function(prop, newVal) {
-			console.log(`你设置了 ${prop}, 新值为 ${newVal}`);
+		this.Watcher = new Watcher({defaultFn: dataObj.dataWatcher || function(curPath, triggerPath, oldVal, newVal) {
+			console.log(`你设置了 ${triggerPath}, 旧值为${oldVal}，新值为 ${newVal}`);
 		}});
 	}
 
@@ -63,11 +63,12 @@ class Observer {
 		for(let k in obj) {
 			let path = currentPath.length ? currentPath + '.' + k : k;
 			let prop = k;
-	
+			let val = obj[k];
+
 			_bind.call(this, obj, prop, path);
 	
-			if(isObject(obj[k])) {
-				this.bindProp(obj[k], path);
+			if(isObject(val)) {
+				this.bindProp(val, path);
 			}
 		}
 	}
@@ -85,7 +86,7 @@ function _bind(target, prop, path) {
 		configurable: true,
 		enumerable: true,
 		get() {
-			console.log(`你访问了 ${prop}`);
+			// console.log(`你访问了 ${path}`);
 			return val;
 		},
 		set(newVal) {
@@ -98,7 +99,7 @@ function _bind(target, prop, path) {
 				that.bindProp(val, path);
 			}
 			
-			emitAllPath(path, prop, newVal, oldVal);
+			emitAllPath(path, oldVal, newVal);
 		}
 	});
 
@@ -109,7 +110,7 @@ function _bind(target, prop, path) {
 		arr.forEach((p, i) => {
 			let _path = arr.slice(0, lens-i).join('.');
 
-			that.Watcher.emit(_path, ...data);
+			that.Watcher.emit(_path, _path, path, ...data);
 		});
 	}
 }
@@ -117,8 +118,6 @@ function _bind(target, prop, path) {
 /* Vue */
 class Vue {
 	constructor(options) {
-		// super(options);
-		// Object.assign(this.data = {}, new Observer(options.data));
 		this._init(options);
 	}
 	
