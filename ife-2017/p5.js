@@ -142,11 +142,11 @@ class Vue {
 	}
 
 	$compile(template) {
-		let regex = /{{([a-zA-Z_]\w*|\[\w+\])((\.?[a-zA-Z_]\w*)|\[\w+\])*}}/g;
+		let regex = /{{([a-zA-Z_]\w*|\['\w+-*\w*'\]|\[\d+\])((\.?[a-zA-Z_]\w*)|\['\w+-*\w*'\]|\[\d+\])*}}/g; // 不支持双引号表达式 ["a"]
 		// 测试用例：2wreqwr{{abd.a}}fsafdsa{{abd..a}}fsadfas{{.asd}}nknmop{{a.dbn}}sddfas{{2.d}} {{a[2]}}fdsafd{{ss.[a]}}
 		
 		let html = template.replace(regex, varString => {
-			let path =  varString.replace(/^{{|}}$/g, '');
+			let path = varString.replace(/^{{|}}$/g, '');
 			let data = getObjData(this.data, path);
 			return data !== void(0) ? data : '';
 		});
@@ -175,7 +175,7 @@ function isArray(data) {
 }
 
 function getObjData(obj, path) {
-	let pathArr = path.replace(/\[\w+\]/g, p => '.' + p.slice(1, -1)).split('.'); // 中括号 [] 转换为 . 连接，分割为数组
+	let pathArr = path.replace(/\['?\w+'?\]/g, p => '.' + p.replace(/^\['?|'?\]$/g, '')).split('.'); // 中括号 ['prop'] 转换为 . 连接，分割为数组
 	let data = obj;
 
 	for(let i=0, lens=pathArr.length; i < lens; i++) {
@@ -197,9 +197,9 @@ let app1 = new Vue({
 			<p>年龄：{{user.age}}</p>
 		</div>
 		<div class="score">
-			<p>年级：{{school[grade]}}</p>
+			<p>年级：{{school['grade']}}</p>
 			<p>分数：
-				<span>数学：{{school.score.math}}分；</span>
+				<span>数学：{{school['score']['math']}}分；</span>
 				<span>英语：{{school.score.english}}分</span>
 			</p>
 		</div>			
