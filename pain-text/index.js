@@ -6,7 +6,7 @@
  * @param {number} options.height
  * @returns {number[][]} dataArray
  */
-const initPain = ({ width ,height }) => {
+const initPain = ({ width, height }) => {
 	const dataArray = [];
 
 	for (let i = 0; i < height; i++) {
